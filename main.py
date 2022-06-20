@@ -93,7 +93,8 @@ def med(file="", prompt=""):
     cmd_input = ""
     
     if os.path.isfile(file):
-        tbuf = file.read()
+        with open(file, "r") as file:
+            tbuf = file.read()
 
     line = tbuf.count("\n")
     while cmd_input != "q":
@@ -148,9 +149,3 @@ def med(file="", prompt=""):
             print("? +")
 
 
-## testing
-try:
-    med()
-except BaseException as err:
-    print(f"Unexpected {err=}, {type(err)=}")
-    raise
