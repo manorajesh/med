@@ -1,4 +1,4 @@
-import os, io
+import os
 
 tbuf = [] # text buffer
 
@@ -67,9 +67,9 @@ def change(line):
 def print_tbuf(line, all=False):
     global tbuf
     if all:
-        print("".join(tbuf))
+        print("".join(tbuf).replace("\n", "", 2))
     else:
-        print("".join(tbuf[find_index(line-1):find_index(line)]))
+        print("".join(tbuf[find_index(line-1):find_index(line)+1]).replace("\n", "", 2)) # fix
 
 def print_tbuf_raw(line, all=False):
     global tbuf
@@ -81,12 +81,16 @@ def print_tbuf_raw(line, all=False):
 def replace(line, old, new, all=False):
     global tbuf
     if all:
-        tbuf[find_index(line):find_index(line+1)] = tbuf[find_index(line):find_index(line+1)].replace(old, new)
+        tbuf[:] = "".join(tbuf[:len(tbuf)]).replace(old, new)
     else:
-        tbuf[find_index(line)] = tbuf[find_index(line)].replace(old, new)
+        tbuf[find_index(line-1):find_index(line)] = "".join(tbuf[find_index(line-1):find_index(line)]).replace(old, new)
 
 def execute(command):
     return os.popen(command)
+
+def delete(line):
+    global tbuf
+    tbuf[find_index(line-1):find_index(line)] = ""
 
 def med(file="", prompt=""):
     global tbuf
@@ -97,33 +101,44 @@ def med(file="", prompt=""):
             tbuf = file.read()
 
     line = tbuf.count("\n")
+    undo = [] # undo buffer
     while cmd_input != "q":
         try:
             cmd_input = input(prompt)
             cmd = cmd_input.split()
-
+            
             if cmd[0] == "r":
+                undo = list(tbuf) # keep last change
                 read(cmd[1])
                 line = tbuf.count("\n")
             elif cmd[0] == "a":
+                undo = list(tbuf) # keep last change
                 append(line)
                 line += 1
             elif cmd[0] == "i":
+                undo = list(tbuf) # keep last change
                 insert(line)
                 line -= 1
             elif cmd[0] == "c":
+                undo = list(tbuf) # keep last change
                 change(line)
             elif cmd[0] == "p":
                 print_tbuf(line)
             elif cmd[0] == ",p":
                 print_tbuf(line, True)
-            elif cmd[0] == "s":
-                replace(line, cmd[1].strip("/"), cmd[2].strip("/"))
-            elif cmd[0] == ",s":
-                replace(line, cmd[1].strip("/"), cmd[2].strip("/"), True)
+            elif cmd[0].startswith("s"):
+                undo = list(tbuf) # keep last change
+                replace(line, cmd[0].split("/")[1], cmd[0].split("/")[2])
+            elif cmd[0].startswith(",s"):
+                undo = list(tbuf) # keep last change
+                replace(line, cmd[0].split("/")[1], cmd[0].split("/")[2], True)
             elif cmd[0] == "w":
                 with open(cmd[1], "w") as file:
-                    file.write(tbuf)
+                    file.write("".join(tbuf))
+                print(len(tbuf))
+            elif cmd[0] == "W":
+                with open(cmd[1], "a") as file:
+                    file.write("".join(tbuf))
                 print(len(tbuf))
             elif cmd[0] == "P":
                 prompt = "*"
@@ -131,11 +146,11 @@ def med(file="", prompt=""):
                 print(execute(cmd[0][1:]).read().rstrip())
             elif cmd[0] == "wq":
                 with open(cmd[1], "w") as file:
-                    file.write(tbuf)
+                    file.write("".join(tbuf))
                 print(len(tbuf))
                 break
             elif cmd[0].isnumeric():
-                line = int(cmd[0])
+                line = int(cmd[0]) if int(cmd[0]) < tbuf.count("\n")+2 else 1
             elif cmd[0] == "n":
                 print(line, end=" ")
                 print_tbuf(line)
@@ -143,9 +158,16 @@ def med(file="", prompt=""):
                 print_tbuf_raw(line)
             elif cmd[0] == ",pr":
                 print_tbuf_raw(line, True)
+            elif cmd[0] == "d":
+                undo = list(tbuf) # keep last change
+                delete(line)
+            elif cmd[0] == "u":
+                tbuf = undo
             else:
                 print("?")
         except IndexError:
             print("? +")
+        except FileNotFoundError:
+            print(f"{cmd[1]} not found")
 
-
+med()
