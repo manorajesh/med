@@ -12,7 +12,7 @@ def find_index(line):
     total = [i for i, v in enumerate(tbuf) if v == '\n']
     total.insert(0, 0)
     total.append(len(tbuf)-1)
-    return total[line%len(total)]
+    return total[line]
 
 def read(file):
     global tbuf
@@ -42,7 +42,7 @@ def append(line):
         text += input()
         text += "\n"
 
-    tbuf[find_index(line):find_index(line+1)] = text[:-3]
+    tbuf = list("".join(tbuf[:find_index(line)+1]) + text[:-3] + "".join(tbuf[find_index(line):]))
 
 def insert(line):
     global tbuf
@@ -52,7 +52,12 @@ def insert(line):
         text += input()
         text += "\n"
 
-    tbuf[find_index(line-2):find_index(line-1)] = text[:-2]
+    if line == 1:
+        for i, v in enumerate(text[:-2]):
+            tbuf.insert(find_index(line-1)+i, v)
+    else:
+        for i, v in enumerate(text[:-2]):
+            tbuf.insert(find_index(line-1)+i+1, v)
 
 def change(line):
     global tbuf
@@ -67,7 +72,7 @@ def change(line):
 def print_tbuf(line, all=False):
     global tbuf
     if all:
-        print("".join(tbuf).replace("\n", "", 2))
+        print("".join(tbuf))
     else:
         print("".join(tbuf[find_index(line-1):find_index(line)+1]).replace("\n", "", 2)) # fix
 
@@ -90,7 +95,8 @@ def execute(command):
 
 def delete(line):
     global tbuf
-    tbuf[find_index(line-1):find_index(line)] = ""
+    for i in range(find_index(line-1), find_index(line)+1):
+        del tbuf[i]
 
 def med(file="", prompt=""):
     global tbuf
@@ -118,7 +124,7 @@ def med(file="", prompt=""):
             elif cmd[0] == "i":
                 undo = list(tbuf) # keep last change
                 insert(line)
-                line -= 1
+                line = line - 1 if line > 1 else 1
             elif cmd[0] == "c":
                 undo = list(tbuf) # keep last change
                 change(line)
@@ -150,7 +156,7 @@ def med(file="", prompt=""):
                 print(len(tbuf))
                 break
             elif cmd[0].isnumeric():
-                line = int(cmd[0]) if int(cmd[0]) < tbuf.count("\n")+2 else 1
+                line = int(cmd[0]) if 0 < int(cmd[0]) < tbuf.count("\n")+2 else 1
             elif cmd[0] == "n":
                 print(line, end=" ")
                 print_tbuf(line)
@@ -161,8 +167,10 @@ def med(file="", prompt=""):
             elif cmd[0] == "d":
                 undo = list(tbuf) # keep last change
                 delete(line)
+                line = line - 1 if line > 1 else 1
             elif cmd[0] == "u":
                 tbuf = undo
+                line = tbuf.count("\n")
             else:
                 print("?")
         except IndexError:
