@@ -2,18 +2,6 @@ import os
 
 tbuf = [] # text buffer
 
-def find_index(line):
-    global tbuf
-    if tbuf == []:
-        return 0
-
-    line = 0 if line < 0 else line
-
-    total = [i for i, v in enumerate(tbuf) if v == '\n']
-    total.insert(0, 0)
-    total.append(len(tbuf)-1)
-    return total[line]
-
 def read(file):
     global tbuf
     text = ""
@@ -22,17 +10,18 @@ def read(file):
 
     try:
         with open(file, "r") as file:
-            text = file.read()
+            text = file.readlines()
     except (FileNotFoundError, TypeError):
         try:
             with file as f:
-                text = f.read()
+                text = f.readlines()
         except:
             print(f"{file} not found")
             return
     finally:
-        tbuf[len(tbuf):] = text
-        print(len(text))
+        for val in text:
+            tbuf.append(val)
+        print(sum(len(i) for i in text))
 
 def append(line):
     global tbuf
@@ -42,7 +31,10 @@ def append(line):
         text += input()
         text += "\n"
 
-    tbuf = list("".join(tbuf[:find_index(line)+1]) + text[:-3] + "".join(tbuf[find_index(line):]))
+    text = text[:-3].split("\n")
+
+    for val in text:
+        tbuf.insert(line+1, val)
 
 def insert(line):
     global tbuf
@@ -52,12 +44,10 @@ def insert(line):
         text += input()
         text += "\n"
 
-    if line == 1:
-        for i, v in enumerate(text[:-2]):
-            tbuf.insert(find_index(line-1)+i, v)
-    else:
-        for i, v in enumerate(text[:-2]):
-            tbuf.insert(find_index(line-1)+i+1, v)
+    text = text[:-3].split("\n")
+
+    for val in text[::-1]:
+        tbuf.insert(line, val)
 
 def change(line):
     global tbuf
@@ -67,36 +57,39 @@ def change(line):
         text += input()
         text += "\n"
 
-    tbuf[find_index(line-1):find_index(line)] = text[:-3]
+    text = text[:-3].split("\n")
+
+    tbuf.pop(line)
+    for val in text[::-1]:
+        tbuf.insert(line, val)
 
 def print_tbuf(line, all=False):
     global tbuf
     if all:
-        print("".join(tbuf))
+        print("\n".join(tbuf))
     else:
-        print("".join(tbuf[find_index(line-1):find_index(line)+1]).replace("\n", "", 2)) # fix
+        print(tbuf[line])
 
 def print_tbuf_raw(line, all=False):
     global tbuf
     if all:
         print(tbuf)
     else:
-        print(tbuf[find_index(line):find_index(line+1)])
+        print(tbuf[line])
 
 def replace(line, old, new, all=False):
     global tbuf
     if all:
-        tbuf[:] = "".join(tbuf[:len(tbuf)]).replace(old, new)
+        tbuf = "\n".join(tbuf).replace(old, new).split("\n")
     else:
-        tbuf[find_index(line-1):find_index(line)] = "".join(tbuf[find_index(line-1):find_index(line)]).replace(old, new)
+        tbuf[line] = tbuf[line].replace(old, new)
 
 def execute(command):
     return os.popen(command)
 
 def delete(line):
     global tbuf
-    for i in range(find_index(line-1), find_index(line)+1):
-        del tbuf[i]
+    tbuf.pop(line)
 
 def med(file="", prompt=""):
     global tbuf
@@ -104,9 +97,9 @@ def med(file="", prompt=""):
     
     if os.path.isfile(file):
         with open(file, "r") as file:
-            tbuf = file.read()
+            tbuf = file.readlines()
 
-    line = tbuf.count("\n")
+    line = len(tbuf)-1
     undo = [] # undo buffer
     while cmd_input != "q":
         try:
@@ -124,7 +117,7 @@ def med(file="", prompt=""):
             elif cmd[0] == "i":
                 undo = list(tbuf) # keep last change
                 insert(line)
-                line = line - 1 if line > 1 else 1
+                line = line - 1 if line > 0 else 0
             elif cmd[0] == "c":
                 undo = list(tbuf) # keep last change
                 change(line)
@@ -137,14 +130,14 @@ def med(file="", prompt=""):
                 replace(line, cmd[0].split("/")[1], cmd[0].split("/")[2])
             elif cmd[0].startswith(",s"):
                 undo = list(tbuf) # keep last change
-                replace(line, cmd[0].split("/")[1], cmd[0].split("/")[2], True)
+                replace(line, cmd[0].split("/")[1], cmd[0].split("/")[2], True) # what if s/ ///
             elif cmd[0] == "w":
                 with open(cmd[1], "w") as file:
-                    file.write("".join(tbuf))
+                    file.write("\n".join(tbuf))
                 print(len(tbuf))
             elif cmd[0] == "W":
                 with open(cmd[1], "a") as file:
-                    file.write("".join(tbuf))
+                    file.write("\n".join(tbuf))
                 print(len(tbuf))
             elif cmd[0] == "P":
                 prompt = "*"
@@ -152,13 +145,13 @@ def med(file="", prompt=""):
                 print(execute(cmd[0][1:]).read().rstrip())
             elif cmd[0] == "wq":
                 with open(cmd[1], "w") as file:
-                    file.write("".join(tbuf))
+                    file.write("\n".join(tbuf))
                 print(len(tbuf))
                 break
             elif cmd[0].isnumeric():
-                line = int(cmd[0]) if 0 < int(cmd[0]) < tbuf.count("\n")+2 else 1
+                line = int(cmd[0]) - 1 if len(tbuf) > (int(cmd[0]) - 1) > -1 else 0
             elif cmd[0] == "n":
-                print(line, end=" ")
+                print(line+1, end=" ")
                 print_tbuf(line)
             elif cmd[0] == "pr":
                 print_tbuf_raw(line)
@@ -170,7 +163,7 @@ def med(file="", prompt=""):
                 line = line - 1 if line > 1 else 1
             elif cmd[0] == "u":
                 tbuf = undo
-                line = tbuf.count("\n")
+                line = len(tbuf)-1
             else:
                 print("?")
         except IndexError:
