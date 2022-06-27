@@ -133,7 +133,6 @@ def split(string, maxAllowed):
 
 def med(file="", prompt=""):
     global tbuf
-    cmd_input = ""
     
     if os.path.isfile(file):
         with open(file, "r") as file:
