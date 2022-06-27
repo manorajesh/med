@@ -25,6 +25,10 @@ Additionally, you can add `alias med='path/to/repo/med.py'` to your shell config
 `W [FILE]` — append text buffer to file (creating one if it doesn't exists) <br>
 `q` — quit (losing any unsaved work) <br>
 `P` - set prompt to `*` <br>
+`y (INTEGER)` - *yank* current or given line to copy buffer <br>
+`x (INTEGER)` - cut (copy and delete) current or given line to copy buffer <br>
+`m (INTEGER)` - *mash* (aka paste) copy buffer to given or current line <br>
+`h` - print explanation for last error <br>
 `!` - a *bang* followed by a shell command will print the command's output to stdout <br>
 `wq` - same as executing `w` and `q` successively <br>
 `INTEGER` - switch current line to integer <br>
