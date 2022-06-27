@@ -17,8 +17,8 @@ Additionally, you can add `alias med='path/to/repo/med.py'` to your shell config
 `c (INTEGER)` - change current or given line to stdin and append new lines if given <br>
 `p (INTEGER)` — print current or given line to stdout <br>
 `,p` - print entire buffer to stdout <br>
-`s` - replace /*old*/ with /*new*/ on current line <br>
-`,s` - replace /*old*/ with /*new*/ on entire buffer <br>
+`s/old/new/` - replace /*old*/ with /*new*/ on current line <br>
+`,s/old/new/` - replace /*old*/ with /*new*/ on entire buffer <br>
 `u` - revert to last change (including the last undo) <br>
 `d (INTEGER)` - delete current or given line <br>
 `w [FILE]` — write text buffer to file (overwriting if it already exists) <br>
