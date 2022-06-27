@@ -1,4 +1,4 @@
-# med - <ins>M</ins>ano <ins>Ed</ins>itor
+# med - <ins>M</ins>ano's <ins>Ed</ins>itor
 
 A Pythonic recreation of a the ubiquitous, line-oriented [GNU ed](https://www.gnu.org/software/ed/) text editor
 
