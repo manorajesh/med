@@ -10,11 +10,11 @@ def read(file):
 
     try:
         with open(file, "r") as file:
-            text = file.readlines()
+            text = file.read().splitlines()
     except (FileNotFoundError, TypeError):
         try:
             with file as f:
-                text = f.readlines()
+                text = f.read().splitlines()
         except:
             print(f"{file} not found")
             return
@@ -33,7 +33,7 @@ def append(line):
 
     text = text[:-3].split("\n")
 
-    for val in text:
+    for val in text[::-1]:
         tbuf.insert(line+1, val)
 
 def insert(line):
@@ -80,7 +80,7 @@ def print_tbuf_raw(line, all=False):
 def print_tbuf_w_lines():
     global tbuf
     for line, val in enumerate(tbuf):
-        print(line, val)
+        print(f"{line+1}\t{val}")
 
 def replace(line, old, new, all=False):
     global tbuf
@@ -96,13 +96,23 @@ def delete(line):
     global tbuf
     tbuf.pop(line)
 
+def isValidLine(list, index, default):
+    global tbuf
+    try:
+        if len(tbuf) >= int(list[index]) > 0:
+            return int(list[index])-1
+        else:
+            return default
+    except (IndexError, ValueError):
+        return default
+
 def med(file="", prompt=""):
     global tbuf
     cmd_input = ""
     
     if os.path.isfile(file):
         with open(file, "r") as file:
-            tbuf = file.readlines()
+            tbuf = file.read().splitlines()
 
     line = len(tbuf)-1
     undo = [] # undo buffer
@@ -117,17 +127,17 @@ def med(file="", prompt=""):
                 line = tbuf.count("\n")
             elif cmd[0] == "a":
                 undo = list(tbuf) # keep last change
-                append(line)
+                append(isValidLine(cmd, 1, line))
                 line += 1
             elif cmd[0] == "i":
                 undo = list(tbuf) # keep last change
-                insert(line)
+                insert(isValidLine(cmd, 1, line))
                 line = line - 1 if line > 0 else 0
             elif cmd[0] == "c":
                 undo = list(tbuf) # keep last change
-                change(line)
+                change(isValidLine(cmd, 1, line))
             elif cmd[0] == "p":
-                print_tbuf(line)
+                print_tbuf(isValidLine(cmd, 1, line))
             elif cmd[0] == ",p":
                 print_tbuf(line, True)
             elif cmd[0].startswith("s"):
@@ -135,7 +145,7 @@ def med(file="", prompt=""):
                 replace(line, cmd[0].split("/")[1], cmd[0].split("/")[2])
             elif cmd[0].startswith(",s"):
                 undo = list(tbuf) # keep last change
-                replace(line, cmd[0].split("/")[1], cmd[0].split("/")[2], True) # what if s/ ///
+                replace(line, cmd[0].split("/")[1], cmd[0].split("/")[2], True)
             elif cmd[0] == "w":
                 with open(cmd[1], "w") as file:
                     file.write("\n".join(tbuf))
@@ -156,7 +166,7 @@ def med(file="", prompt=""):
             elif cmd[0].isnumeric():
                 line = int(cmd[0]) - 1 if len(tbuf) > (int(cmd[0]) - 1) > -1 else 0
             elif cmd[0] == "n":
-                print(line+1, tbuf[line])
+                print(f"{isValidLine(cmd, 1, line)+1}\t{tbuf[isValidLine(cmd, 1, line)]}")
             elif cmd[0] == ",n":
                 print_tbuf_w_lines()
             elif cmd[0] == "pr":
@@ -165,13 +175,15 @@ def med(file="", prompt=""):
                 print_tbuf_raw(line, True)
             elif cmd[0] == "d":
                 undo = list(tbuf) # keep last change
-                delete(line)
+                delete(isValidLine(cmd, 1, line))
                 line = line - 1 if line > 1 else 1
             elif cmd[0] == "u":
                 temp = list(tbuf) # redo feature
                 tbuf = list(undo)
                 undo = list(temp)
                 line = len(tbuf)-1
+            elif cmd[0] == "q":
+                break
             else:
                 print("?")
         except IndexError:
