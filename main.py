@@ -190,5 +190,3 @@ def med(file="", prompt=""):
             print("?")
         except FileNotFoundError:
             print(f"{cmd[1]} not found")
-
-med()
