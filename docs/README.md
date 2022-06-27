@@ -4,7 +4,8 @@ A Pythonic recreation of a the ubiquitous, line-oriented [GNU ed](https://www.gn
 
 ## Installation
 `git clone https://github.com/manorajesh/med.git` <br>
-`pip install —r requirements.txt`
+`pip install —r requirements.txt` <br><br>
+Additionally, you can add `alias med='path/to/repo/med.py'` to your shell config file, so that you can type `med` as if it were a command.
 
 ## Usage
 `./med.py [FILE] [—p prompt]`
