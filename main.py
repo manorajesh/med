@@ -218,7 +218,12 @@ def med(file="", prompt=""):
             print("?")
             help = f'unexpected address for {cmd[0]}'
         except FileNotFoundError:
+            print("?")
             help = f'"{cmd[1]}" not found'
+        except ValueError:
+            print("?")
+            help = "not enough arguments for replace"
+
 
 if __name__ == "__main__":
     med()
