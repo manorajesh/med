@@ -131,12 +131,13 @@ def split(string, maxAllowed):
     except ValueError:
         return string.split()
 
-def med(file="", prompt=""):
+def med(file="test.py", prompt=""):
     global tbuf
     
     if os.path.isfile(file):
-        with open(file, "r") as file:
-            tbuf = file.read().splitlines()
+        with open(file, "r") as f:
+            tbuf = f.read().splitlines()
+            print(os.path.getsize(file))
 
     line = len(tbuf)-1
     undo = [] # undo buffer
@@ -200,7 +201,7 @@ def med(file="", prompt=""):
                 print_tbuf_raw(line, True)
             elif cmd[0] == "d":
                 undo = list(tbuf) # keep last change
-                delete(isValidLine(cmd, 1, None))
+                delete(isValidLine(cmd, 1, line))
                 line = line - 1 if line > 1 else 1
             elif cmd[0] == "u":
                 temp = list(tbuf) # redo feature
@@ -209,8 +210,18 @@ def med(file="", prompt=""):
                 line = len(tbuf)-1
             elif cmd[0] == "h":
                 print(help)
+            elif cmd[0] == "y":
+                copy = tbuf[isValidLine(cmd, 1, line)]
+            elif cmd[0] == "x":
+                undo = list(tbuf) # keep last change
+                copy = tbuf[isValidLine(cmd, 1, line)]
+                delete(isValidLine(cmd, 1, line))
+                line = line - 1 if line > 1 else 1
+            elif cmd[0] == "m":
+                tbuf.insert(isValidLine(cmd, 1, line), copy)
             else:
                 print("?")
+                help = 'invalid command'
         except IndexError:
             print("?")
             help = 'invalid address'
@@ -223,7 +234,9 @@ def med(file="", prompt=""):
         except ValueError:
             print("?")
             help = "not enough arguments for replace"
-
+        except UnboundLocalError:
+            print("?")
+            help = "copy buffer is empty"
 
 if __name__ == "__main__":
     med()
