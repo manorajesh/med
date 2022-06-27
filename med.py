@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from email.policy import default
 import click
 from main import med
 
