@@ -77,6 +77,11 @@ def print_tbuf_raw(line, all=False):
     else:
         print(tbuf[line])
 
+def print_tbuf_w_lines():
+    global tbuf
+    for line, val in enumerate(tbuf):
+        print(line, val)
+
 def replace(line, old, new, all=False):
     global tbuf
     if all:
@@ -151,8 +156,9 @@ def med(file="", prompt=""):
             elif cmd[0].isnumeric():
                 line = int(cmd[0]) - 1 if len(tbuf) > (int(cmd[0]) - 1) > -1 else 0
             elif cmd[0] == "n":
-                print(line+1, end=" ")
-                print_tbuf(line)
+                print(line+1, tbuf[line])
+            elif cmd[0] == ",n":
+                print_tbuf_w_lines()
             elif cmd[0] == "pr":
                 print_tbuf_raw(line)
             elif cmd[0] == ",pr":
@@ -162,12 +168,14 @@ def med(file="", prompt=""):
                 delete(line)
                 line = line - 1 if line > 1 else 1
             elif cmd[0] == "u":
-                tbuf = undo
+                temp = list(tbuf) # redo feature
+                tbuf = list(undo)
+                undo = list(temp)
                 line = len(tbuf)-1
             else:
                 print("?")
         except IndexError:
-            print("? +")
+            print("?")
         except FileNotFoundError:
             print(f"{cmd[1]} not found")
 
