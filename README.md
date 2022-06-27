@@ -31,6 +31,7 @@ A Pythonic recreation of a the ubiquitous [GNU ed](https://www.gnu.org/software/
 `,n` - print entire text buffer with line numbers <br>
 `pr` and `,pr` - print the raw text buffer (debug only) <br>
 
-###### Contents of requirements.txt
+##### Contents of requirements.txt
+`click==8.1.3`
 
 <sub>Part of the M-Commands Line</sub>
