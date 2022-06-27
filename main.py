@@ -115,7 +115,7 @@ def splitReplace(string):
 
     if text.startswith("/") and text.endswith("/"):
         for letter in text[1:-1]:
-            if letter == "/":
+            if letter == "/" and c < 1:
                 words.append("")
                 c += 1
             else:
