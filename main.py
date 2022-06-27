@@ -116,15 +116,15 @@ def med(file="", prompt=""):
 
     line = len(tbuf)-1
     undo = [] # undo buffer
-    while cmd_input != "q":
+    help = "?"
+    while (cmd_input := input(prompt)) != "q":
         try:
-            cmd_input = input(prompt)
             cmd = cmd_input.split()
             
             if cmd[0] == "r":
                 undo = list(tbuf) # keep last change
                 read(cmd[1])
-                line = tbuf.count("\n")
+                line = len(tbuf)-1
             elif cmd[0] == "a":
                 undo = list(tbuf) # keep last change
                 append(isValidLine(cmd, 1, line))
@@ -165,6 +165,7 @@ def med(file="", prompt=""):
                 break
             elif cmd[0].isnumeric():
                 line = int(cmd[0]) - 1 if len(tbuf) > (int(cmd[0]) - 1) > -1 else 0
+                print(tbuf[line])
             elif cmd[0] == "n":
                 print(f"{isValidLine(cmd, 1, line)+1}\t{tbuf[isValidLine(cmd, 1, line)]}")
             elif cmd[0] == ",n":
@@ -175,18 +176,22 @@ def med(file="", prompt=""):
                 print_tbuf_raw(line, True)
             elif cmd[0] == "d":
                 undo = list(tbuf) # keep last change
-                delete(isValidLine(cmd, 1, line))
+                delete(isValidLine(cmd, 1, None))
                 line = line - 1 if line > 1 else 1
             elif cmd[0] == "u":
                 temp = list(tbuf) # redo feature
                 tbuf = list(undo)
                 undo = list(temp)
                 line = len(tbuf)-1
-            elif cmd[0] == "q":
-                break
+            elif cmd[0] == "h":
+                print(help)
             else:
                 print("?")
         except IndexError:
             print("?")
+            help = 'invalid address'
+        except TypeError:
+            print("?")
+            help = f'unexpected address for {cmd[0]}'
         except FileNotFoundError:
-            print(f"{cmd[1]} not found")
+            help = f'"{cmd[1]}" not found'
