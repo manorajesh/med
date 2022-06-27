@@ -82,8 +82,10 @@ def print_tbuf_w_lines():
     for line, val in enumerate(tbuf):
         print(f"{line+1}\t{val}")
 
-def replace(line, old, new, all=False):
+def replace(line, words, all=False):
     global tbuf
+    old, new = words
+
     if all:
         tbuf = "\n".join(tbuf).replace(old, new).split("\n")
     else:
@@ -106,6 +108,29 @@ def isValidLine(list, index, default):
     except (IndexError, ValueError):
         return default
 
+def splitReplace(string):
+    text = string[0].lstrip(',s')
+    words = [""]
+    c = 0
+
+    if text.startswith("/") and text.endswith("/"):
+        for letter in text[1:-1]:
+            if letter == "/":
+                words.append("")
+                c += 1
+            else:
+                words[c] += letter
+    return words
+
+def split(string, maxAllowed):
+    try:
+        if string.index(" ") > maxAllowed:
+            return [string]
+        else:
+            return string.split()    
+    except ValueError:
+        return string.split()
+
 def med(file="", prompt=""):
     global tbuf
     cmd_input = ""
@@ -119,7 +144,7 @@ def med(file="", prompt=""):
     help = "?"
     while (cmd_input := input(prompt)) != "q":
         try:
-            cmd = cmd_input.split()
+            cmd = split(cmd_input, 1)
             
             if cmd[0] == "r":
                 undo = list(tbuf) # keep last change
@@ -142,10 +167,10 @@ def med(file="", prompt=""):
                 print_tbuf(line, True)
             elif cmd[0].startswith("s"):
                 undo = list(tbuf) # keep last change
-                replace(line, cmd[0].split("/")[1], cmd[0].split("/")[2])
+                replace(line, splitReplace(cmd))
             elif cmd[0].startswith(",s"):
                 undo = list(tbuf) # keep last change
-                replace(line, cmd[0].split("/")[1], cmd[0].split("/")[2], True)
+                replace(line, splitReplace(cmd), True)
             elif cmd[0] == "w":
                 with open(cmd[1], "w") as file:
                     file.write("\n".join(tbuf))
@@ -195,3 +220,6 @@ def med(file="", prompt=""):
             help = f'unexpected address for {cmd[0]}'
         except FileNotFoundError:
             help = f'"{cmd[1]}" not found'
+
+if __name__ == "__main__":
+    med()
