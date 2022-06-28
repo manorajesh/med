@@ -24,7 +24,7 @@ Additionally, you can add `alias med='path/to/repo/med.py'` to your shell config
 `w [FILE]` — write text buffer to file (overwriting if it already exists) <br>
 `W [FILE]` — append text buffer to file (creating one if it doesn't exists) <br>
 `q` — quit (losing any unsaved work) <br>
-`P` - set prompt to `*` <br>
+`P (STRING)` - set prompt to `STRING` or `*` if none given <br>
 `y (INTEGER)` - *yank* (copy) current or given line to copy buffer <br>
 `x (INTEGER)` - cut (copy and delete) current or given line to copy buffer <br>
 `m (INTEGER)` - *mash* (aka paste) copy buffer to given or current line <br>
