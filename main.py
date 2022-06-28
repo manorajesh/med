@@ -131,7 +131,7 @@ def split(string, maxAllowed):
     except ValueError:
         return string.split()
 
-def med(file="test.py", prompt=""):
+def med(file="", prompt=""):
     global tbuf
     
     if os.path.isfile(file):
@@ -180,7 +180,7 @@ def med(file="test.py", prompt=""):
                     file.write("\n".join(tbuf))
                 print(len(tbuf))
             elif cmd[0] == "P":
-                prompt = "*"
+                prompt = "*" if len(cmd) < 2 else cmd[1]
             elif cmd[0].startswith("!"):
                 print(execute(cmd[0][1:]).read().rstrip())
             elif cmd[0] == "wq":
