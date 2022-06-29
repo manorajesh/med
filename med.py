@@ -5,7 +5,7 @@ from main import med
 @click.command()
 @click.argument('file', type=str, default="")
 @click.option('--prompt', '-p', help='The prompt to display', type=str, default="")
-@click.version_option(version='0.2.4')
+@click.version_option(version='0.2.5')
 @click.help_option('--help', '-h')
 
 def main(file, prompt):

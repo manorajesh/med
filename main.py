@@ -1,4 +1,4 @@
-import os
+from os import path, popen
 
 tbuf = [] # text buffer
 
@@ -9,8 +9,8 @@ def read(file):
         file = execute(file[1:])
 
     try:
-        with open(file, "r") as file:
-            text = file.read().splitlines()
+        with open(file, "r") as f:
+            text = f.read().splitlines()
     except (FileNotFoundError, TypeError):
         try:
             with file as f:
@@ -31,9 +31,7 @@ def append(line):
         text += input()
         text += "\n"
 
-    text = text[:-3].split("\n")
-
-    for val in text[::-1]:
+    for val in text[:-3].split("\n")[::-1]:
         tbuf.insert(line+1, val)
 
 def insert(line):
@@ -44,9 +42,7 @@ def insert(line):
         text += input()
         text += "\n"
 
-    text = text[:-3].split("\n")
-
-    for val in text[::-1]:
+    for val in text[:-3].split("\n")[::-1]:
         tbuf.insert(line, val)
 
 def change(line):
@@ -57,10 +53,8 @@ def change(line):
         text += input()
         text += "\n"
 
-    text = text[:-3].split("\n")
-
     tbuf.pop(line)
-    for val in text[::-1]:
+    for val in text[:-3].split("\n")[::-1]:
         tbuf.insert(line, val)
 
 def print_tbuf(line, all=False):
@@ -92,7 +86,7 @@ def replace(line, words, all=False):
         tbuf[line] = tbuf[line].replace(old, new)
 
 def execute(command):
-    return os.popen(command)
+    return popen(command)
 
 def delete(line):
     global tbuf
@@ -134,10 +128,10 @@ def split(string, maxAllowed):
 def med(file="", prompt=""):
     global tbuf
     
-    if os.path.isfile(file):
+    if path.isfile(file):
         with open(file, "r") as f:
             tbuf = f.read().splitlines()
-            print(os.path.getsize(file))
+            print(path.getsize(file))
 
     line = len(tbuf)-1
     undo = [] # undo buffer
@@ -207,6 +201,7 @@ def med(file="", prompt=""):
                 temp = list(tbuf) # redo feature
                 tbuf = list(undo)
                 undo = list(temp)
+                del temp
                 line = len(tbuf)-1
             elif cmd[0] == "h":
                 print(help)
